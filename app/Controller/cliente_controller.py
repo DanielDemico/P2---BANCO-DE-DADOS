@@ -2,17 +2,15 @@ from typing import List, Optional, Tuple
 from Models.cliente_model import ClienteModel
 from Repository.cliente_repo import ClienteRepository
 
+from Verifications.cpf import validate_cpf
+
 class ClienteController:
     def __init__(self):
         self.repository = ClienteRepository()
     
-    def _validate_cpf(self, cpf: str) -> bool:
-        # Remove non-numeric characters
-        return True
-    
     def create_cliente(self, nome: str, mesa: int, cpf: str) -> Tuple[bool, str]:
         # Validate CPF format
-        if not self._validate_cpf(cpf):
+        if not validate_cpf(cpf):
             return False, "CPF inválido"
         
         # Check if CPF already exists
