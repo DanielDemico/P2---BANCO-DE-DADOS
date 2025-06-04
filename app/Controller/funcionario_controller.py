@@ -3,29 +3,15 @@ from Models.funcionario_model import FuncionarioModel
 from Repository.funcionario_repo import FuncionarioRepository
 from datetime import date
 
+from Verifications.cpf import validate_cpf
+
 class FuncionarioController:
     def __init__(self):
         self.repository = FuncionarioRepository()
     
-    def _validate_cpf(self, cpf: str) -> bool:
-        # Remove non-numeric characters
-        cpf = ''.join(filter(str.isdigit, cpf))
-        
-        # Check if CPF has 11 digits
-        if len(cpf) != 11:
-            return False
-        
-        # Validate CPF using the algorithm
-        for i in range(9, 11):
-            value = sum((int(cpf[num]) * ((i + 1) - num) for num in range(0, i)))
-            digit = ((value * 10) % 11) % 10
-            if digit != int(cpf[i]):
-                return False
-        return True
-    
     def create_funcionario(self, nome: str, dt_nascimento: date, cpf: str) -> Tuple[bool, str]:
         # Validate CPF format
-        if not self._validate_cpf(cpf):
+        if not validate_cpf(cpf):
             return False, "CPF inválido"
         
         # Check if CPF already exists
