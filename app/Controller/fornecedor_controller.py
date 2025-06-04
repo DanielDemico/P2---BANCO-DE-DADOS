@@ -2,17 +2,15 @@ from typing import List, Optional, Tuple
 from Models.fornecedor_model import FornecedorModel
 from Repository.fornecedor_repo import FornecedorRepository
 
+from Verifications.cnpj import validate_cnpj
+
 class FornecedorController:
     def __init__(self):
         self.repository = FornecedorRepository()
     
-    def _validate_cnpj(self, cnpj: str) -> bool:
-
-        return True
-    
     def create_fornecedor(self, nome: str, cnpj: str) -> Tuple[bool, str]:
         # Validate CNPJ format
-        if not self._validate_cnpj(cnpj):
+        if not validate_cnpj(cnpj):
             return False, "CNPJ inválido"
         
         # Check if CNPJ already exists
