@@ -54,7 +54,7 @@ def main():
     elif menu == "Pedidos de Venda":
         show_pedidos_venda(pedido_venda_controller, cliente_controller, produto_controller)
     elif menu == "Pedidos de Compra":
-        show_pedidos_compra(pedido_compra_controller, funcionario_controller, ingrediente_controller)
+        show_pedidos_compra(pedido_compra_controller, funcionario_controller, ingrediente_controller, fornecedor_controller)
     elif menu == "Composição de Produtos":
         show_produto_ingredientes(produto_ingredientes_controller, produto_controller, ingrediente_controller)
 

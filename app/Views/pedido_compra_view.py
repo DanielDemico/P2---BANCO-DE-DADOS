@@ -15,7 +15,7 @@ def show_pedidos_compra(controller: PedidoCompraController,
     
     # Initialize session state for pedidos if not exists
     if 'pedidos_compra' not in st.session_state:
-        st.session_state.pedidos_compra = controller.list_pedidos()
+        st.session_state.pedidos_compra = controller.get_all_pedidos_compra()
     
     # Create tabs for different operations
     tab1, tab2, tab3, tab4 = st.tabs(["Criar", "Listar", "Atualizar", "Deletar"])
@@ -32,22 +32,22 @@ def show_pedidos_compra(controller: PedidoCompraController,
             
             # Get ingredientes for selection
             ingredientes = ingrediente_controller.list_ingredientes()
-            ingrediente_options = {f"{i.nome} (ID: {i.id_ingrediente})": i.id_ingrediente 
+            ingrediente_options = {f"{i['nome_i']} (ID: {i['id_ingrediente']})": i['id_ingrediente'] 
                                  for i in ingredientes}
             selected_ingrediente = st.selectbox("Ingrediente", 
                                              options=list(ingrediente_options.keys()))
             
-            quantidade = st.number_input("Quantidade", min_value=1, step=1)
+            quantidade = st.number_input("Quantidade", min_value=1.0, step=0.1)
             
             submitted = st.form_submit_button("Criar Pedido de Compra")
             if submitted:
                 fornecedor_id = fornecedor_options[selected_fornecedor]
                 ingrediente_id = ingrediente_options[selected_ingrediente]
-                success, message = controller.create_pedido(fornecedor_id, ingrediente_id, quantidade)
+                success, message = controller.create_item_pedido_compra(fornecedor_id, ingrediente_id, quantidade)
                 if success:
                     st.success(message)
                     # Update session state
-                    st.session_state.pedidos_compra = controller.list_pedidos()
+                    st.session_state.pedidos_compra = controller.get_all_pedidos_compra()
                     st.rerun()
                 else:
                     st.error(message)
@@ -67,14 +67,14 @@ def show_pedidos_compra(controller: PedidoCompraController,
         
         # Get all pedidos for selection
         if st.session_state.pedidos_compra:
-            pedido_options = {f"Pedido {p.id_pedido} - {p.data_pedido}": p.id_pedido 
+            pedido_options = {f"Pedido {p.id_pedido_compra} - {p.data_compra}": p.id_pedido_compra 
                             for p in st.session_state.pedidos_compra}
             selected_pedido = st.selectbox("Selecione o pedido", 
                                         options=list(pedido_options.keys()))
             
             if selected_pedido:
                 pedido_id = pedido_options[selected_pedido]
-                pedido = controller.get_pedido(pedido_id)
+                pedido = controller.get_pedido_compra_by_id(pedido_id)
                 
                 with st.form("update_pedido_compra_form"):
                     # Get fornecedores for selection
@@ -87,14 +87,14 @@ def show_pedidos_compra(controller: PedidoCompraController,
                     
                     # Get ingredientes for selection
                     ingredientes = ingrediente_controller.list_ingredientes()
-                    ingrediente_options = {f"{i.nome} (ID: {i.id_ingrediente})": i.id_ingrediente 
+                    ingrediente_options = {f"{i['nome_i']} (ID: {i['id_ingrediente']})": i['id_ingrediente'] 
                                          for i in ingredientes}
                     selected_ingrediente = st.selectbox("Ingrediente", 
                                                      options=list(ingrediente_options.keys()),
                                                      key="update_ingrediente")
                     
-                    quantidade = st.number_input("Quantidade", value=pedido.quantidade, 
-                                              min_value=1, step=1)
+                    quantidade = st.number_input("Quantidade", value=pedido.qtd_ingrediente, 
+                                              min_value=1.0, step=0.1)
                     
                     submitted = st.form_submit_button("Atualizar Pedido de Compra")
                     if submitted:
@@ -105,7 +105,7 @@ def show_pedidos_compra(controller: PedidoCompraController,
                         if success:
                             st.success(message)
                             # Update session state
-                            st.session_state.pedidos_compra = controller.list_pedidos()
+                            st.session_state.pedidos_compra = controller.get_all_pedidos_compra()
                             st.rerun()
                         else:
                             st.error(message)
@@ -117,7 +117,7 @@ def show_pedidos_compra(controller: PedidoCompraController,
         
         # Get all pedidos for selection
         if st.session_state.pedidos_compra:
-            pedido_options = {f"Pedido {p.id_pedido} - {p.fornecedor.nome}": p.id_pedido 
+            pedido_options = {f"Pedido {p.id_pedido_compra} - {p.data_compra}": p.id_pedido_compra 
                             for p in st.session_state.pedidos_compra}
             selected_pedido = st.selectbox("Selecione o pedido para deletar", 
                                         options=list(pedido_options.keys()),
@@ -141,7 +141,7 @@ def show_pedidos_compra(controller: PedidoCompraController,
                     if success:
                         st.success(message)
                         # Update session state
-                        st.session_state.pedidos_compra = controller.list_pedidos()
+                        st.session_state.pedidos_compra = controller.get_all_pedidos_compra()
                         st.session_state.delete_confirmed = False
                         st.rerun()
                     else:

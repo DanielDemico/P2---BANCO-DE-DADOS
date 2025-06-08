@@ -18,7 +18,7 @@ class PedidoCompraController:
                 return False, "Quantidade deve ser maior que zero"
             
             # Check if funcionario exists
-            funcionario = self.funcionario_controller.get_funcionario_by_id(fk_funcionario)
+            funcionario = self.funcionario_controller.get_funcionario(fk_funcionario)
             if not funcionario:
                 return False, "Funcionário não encontrado"
             
