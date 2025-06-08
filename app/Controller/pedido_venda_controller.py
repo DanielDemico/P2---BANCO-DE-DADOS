@@ -18,7 +18,7 @@ class PedidoVendaController:
                 return False, "Quantidade deve ser maior que zero"
             
             # Check if cliente exists
-            cliente = self.cliente_controller.get_cliente_by_id(fk_cliente)
+            cliente = self.cliente_controller.get_cliente(fk_cliente)
             if not cliente:
                 return False, "Cliente não encontrado"
             
@@ -74,6 +74,55 @@ class PedidoVendaController:
             return True, "Item de pedido cancelado com sucesso"
         except Exception as e:
             return False, f"Erro ao cancelar item de pedido: {str(e)}"
+
+    def update_item_pedido_venda(self, id_pedido_venda: int, fk_cliente: int, 
+                                fk_produto: int, qtd_venda: int) -> Tuple[bool, str]:
+        try:
+            # Get current pedido
+            current_pedido = self.repository.get_pedido_venda_by_id(id_pedido_venda)
+            if not current_pedido:
+                return False, "Item de pedido não encontrado"
+            
+            # Validate input
+            if qtd_venda <= 0:
+                return False, "Quantidade deve ser maior que zero"
+            
+            # Check if cliente exists
+            cliente = self.cliente_controller.get_cliente(fk_cliente)
+            if not cliente:
+                return False, "Cliente não encontrado"
+            
+            # Check if produto exists and has enough stock
+            produto = self.produto_controller.get_produto(fk_produto)
+            if not produto:
+                return False, "Produto não encontrado"
+            
+            # Calculate stock adjustment
+            stock_diff = qtd_venda - current_pedido.qtd_venda
+            if stock_diff > 0:  # Need to reduce stock
+                if produto.quantidade < stock_diff:
+                    return False, "Estoque insuficiente"
+                success, message = self.produto_controller.ajustar_estoque_produto(
+                    fk_produto, stock_diff, 'venda')
+            else:  # Need to return stock
+                success, message = self.produto_controller.ajustar_estoque_produto(
+                    fk_produto, abs(stock_diff), 'retorno')
+            
+            if not success:
+                return False, f"Erro ao atualizar estoque: {message}"
+            
+            # Update pedido
+            pedido = PedidoVendaModel(
+                id_pedido_venda=id_pedido_venda,
+                fk_cliente=fk_cliente,
+                fk_produto=fk_produto,
+                qtd_venda=qtd_venda,
+                data_venda=current_pedido.data_venda
+            )
+            self.repository.update_pedido_venda(pedido)
+            return True, "Item de pedido atualizado com sucesso"
+        except Exception as e:
+            return False, f"Erro ao atualizar item de pedido: {str(e)}"
 
     def get_all_pedidos_venda(self):
         return self.repository.get_all_pedidos_venda()

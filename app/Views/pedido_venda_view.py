@@ -12,7 +12,7 @@ def show_pedidos_venda(controller: PedidoVendaController,
     
     # Initialize session state for pedidos if not exists
     if 'pedidos_venda' not in st.session_state:
-        st.session_state.pedidos_venda = controller.list_pedidos()
+        st.session_state.pedidos_venda = controller.get_all_pedidos_venda()
     
     # Create tabs for different operations
     tab1, tab2, tab3, tab4 = st.tabs(["Criar", "Listar", "Atualizar", "Deletar"])
@@ -29,7 +29,7 @@ def show_pedidos_venda(controller: PedidoVendaController,
             
             # Get produtos for selection
             produtos = produto_controller.list_produtos()
-            produto_options = {f"{p.nome} (ID: {p.id_produto})": p.id_produto 
+            produto_options = {f"{p.nome_p} (ID: {p.id_produto})": p.id_produto 
                              for p in produtos}
             selected_produto = st.selectbox("Produto", 
                                          options=list(produto_options.keys()))
@@ -40,11 +40,11 @@ def show_pedidos_venda(controller: PedidoVendaController,
             if submitted:
                 cliente_id = cliente_options[selected_cliente]
                 produto_id = produto_options[selected_produto]
-                success, message = controller.create_pedido(cliente_id, produto_id, quantidade)
+                success, message = controller.create_item_pedido_venda(cliente_id, produto_id, quantidade)
                 if success:
                     st.success(message)
                     # Update session state
-                    st.session_state.pedidos_venda = controller.list_pedidos()
+                    st.session_state.pedidos_venda = controller.get_all_pedidos_venda()
                     st.rerun()
                 else:
                     st.error(message)
@@ -71,7 +71,7 @@ def show_pedidos_venda(controller: PedidoVendaController,
             
             if selected_pedido:
                 pedido_id = pedido_options[selected_pedido]
-                pedido = controller.get_pedido(pedido_id)
+                pedido = controller.get_pedido_venda_by_id(pedido_id)
                 
                 with st.form("update_pedido_venda_form"):
                     # Get clientes for selection
@@ -84,7 +84,7 @@ def show_pedidos_venda(controller: PedidoVendaController,
                     
                     # Get produtos for selection
                     produtos = produto_controller.list_produtos()
-                    produto_options = {f"{p.nome} (ID: {p.id_produto})": p.id_produto 
+                    produto_options = {f"{p.nome_p} (ID: {p.id_produto})": p.id_produto 
                                      for p in produtos}
                     selected_produto = st.selectbox("Produto", 
                                                  options=list(produto_options.keys()),
@@ -97,12 +97,12 @@ def show_pedidos_venda(controller: PedidoVendaController,
                     if submitted:
                         cliente_id = cliente_options[selected_cliente]
                         produto_id = produto_options[selected_produto]
-                        success, message = controller.update_pedido_info(pedido_id, cliente_id, 
+                        success, message = controller.update_item_pedido_venda(pedido_id, cliente_id, 
                                                                       produto_id, quantidade)
                         if success:
                             st.success(message)
                             # Update session state
-                            st.session_state.pedidos_venda = controller.list_pedidos()
+                            st.session_state.pedidos_venda = controller.get_all_pedidos_venda()
                             st.rerun()
                         else:
                             st.error(message)
@@ -134,11 +134,11 @@ def show_pedidos_venda(controller: PedidoVendaController,
                             st.session_state.delete_confirmed = True
                             st.rerun()
                 else:
-                    success, message = controller.remove_pedido(pedido_id)
+                    success, message = controller.cancel_item_pedido_venda(pedido_id)
                     if success:
                         st.success(message)
                         # Update session state
-                        st.session_state.pedidos_venda = controller.list_pedidos()
+                        st.session_state.pedidos_venda = controller.get_all_pedidos_venda()
                         st.session_state.delete_confirmed = False
                         st.rerun()
                     else:
