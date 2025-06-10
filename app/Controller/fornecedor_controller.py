@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple
 from Models.fornecedor_model import FornecedorModel
 from Repository.fornecedor_repo import FornecedorRepository
 
-from Verifications.cnpj import validate_cnpj
+from Validations.cnpj import validate_cnpj
 
 class FornecedorController:
     def __init__(self):
