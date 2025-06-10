@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple
 from Models.cliente_model import ClienteModel
 from Repository.cliente_repo import ClienteRepository
 
-from Verifications.cpf import validate_cpf
+from Validations.cpf import validate_cpf
 
 class ClienteController:
     def __init__(self):
