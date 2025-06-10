@@ -3,7 +3,7 @@ from Models.funcionario_model import FuncionarioModel
 from Repository.funcionario_repo import FuncionarioRepository
 from datetime import date
 
-from Verifications.cpf import validate_cpf
+from Validations.cpf import validate_cpf
 
 class FuncionarioController:
     def __init__(self):
